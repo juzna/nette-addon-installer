@@ -1,0 +1,28 @@
+{
+	"name": "nette/addon-installer",
+	"type": "composer-installer",
+	"description": "Custom installer for Nette Addons",
+	"keywords": ["nette", "installer"],
+	"homepage": "https://github.com/juzna/nette-addon-installer",
+	"license": ["BSD-3", "GPLv2", "GPLv3"],
+	"authors": [
+		{
+			"name": "Jan Dolecek",
+			"homepage": "http://juzna.cz"
+		},
+		{
+			"name": "Nette Community",
+			"homepage": "https://github.com/nette/nette/contributors"
+		}
+	],
+	"require": {
+		"php": ">= 5.3.0",
+		"nette/nette": "2.0.*"
+	},
+	"autoload": {
+		"classmap": [ "NetteAddonInstaller.php" ]
+	},
+	"extra": {
+		"class": "NetteAddonInstaller"
+	}
+}
