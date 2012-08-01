@@ -3,6 +3,7 @@
 namespace Nette\Addons;
 
 use Composer\Package\PackageInterface;
+use Composer\Autoload\AutoloadGenerator;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
 
@@ -61,18 +62,26 @@ EOT;
 
 		// Run custom installers (registered in extra.nette-addon.addon-section)
 		$customInstallers = array();
+		$autoloads = array();
 		foreach ($repo->getPackages() as /** @var PackageInterface $pkg */ $pkg) {
 			if ($x = $this->getExtra($pkg, 'addon-section')) {
 				$customInstallers += $x;
+				$autoloads[] = array($pkg, parent::getInstallPath($pkg)); // FIXME: ugly!
 			}
 		}
-		echo "Registered nette custom installers:"; var_dump($customInstallers);
+		// echo "Registered nette custom installers:"; var_dump($customInstallers);
+
+		// Class loader for custom installers
+		$generator = new AutoloadGenerator;
+		$map = $generator->parseAutoloads($autoloads);
+		$classLoader = $generator->createLoader($map);
+		$classLoader->register();
 
 		$extra = $this->getExtra($package);
 		foreach ($customInstallers as $section => $className) {
 			if ( ! isset($extra[$section])) continue; // no section for this installer
 
-			echo "Running custom installer for section '$section' with config"; var_dump($extra[$section]);
+			echo "\tNette Addon: Running custom installer for section '$section'\n"; // with config: "; var_dump($extra[$section]);
 
 			/** @var \Nette\Addons\CustomInstallers\IInstaller $installer */
 			$installer = new $className;
