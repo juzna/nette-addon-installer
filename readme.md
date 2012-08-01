@@ -38,5 +38,7 @@ Get inspired in *examples* section. Here is a brief summary about possible optio
 - **assets** - CSS or JavaScript files required by addon; requires WebLoader addon to be installed
 - **assets-optional** - like above, but only optional. User should be prompted whether to install them or not.
 - **config-extensions** - extensions for Nette's Dependency Injection Container
+- **extension-methods** - add new methods to existing objects
+- **extras** - [custom installer](https://github.com/juzna/nette-extras) for common assets
 
 More options to come
