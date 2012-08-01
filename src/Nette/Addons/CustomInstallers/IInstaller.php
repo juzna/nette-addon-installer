@@ -21,7 +21,7 @@ interface IInstaller
 	 * @param PackageInterface             $package package instance
 	 * @param mixed                        $section configuration for registered section
 	 */
-	function install(InstalledRepositoryInterface $repo, PackageInterface $package, $section);
+	function install(InstalledRepositoryInterface $repo, PackageInterface $package, $section, &$config);
 
 	/**
 	 * Updates specific package.

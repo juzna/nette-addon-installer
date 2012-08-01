@@ -216,7 +216,7 @@ EOT;
 
 			/** @var \Nette\Addons\CustomInstallers\IInstaller $installer */
 			$installer = new $className;
-			$installer->install($this->repo, $this->package, $extra[$section]); // FIXME: update/uninstall
+			$installer->install($this->repo, $this->package, $extra[$section], $this->addonConfig['addons'][$this->package->getPrettyName()]); // FIXME: update/uninstall
 		}
 	}
 
