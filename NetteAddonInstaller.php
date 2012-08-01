@@ -1,7 +1,6 @@
 <?php
 
 use Composer\Package\PackageInterface;
-use Nette\Utils\Neon;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
 
@@ -16,6 +15,13 @@ class NetteAddonInstaller extends LibraryInstaller
 		'nette-addon',
 		'nette-assets',
 	);
+
+	const HEADER = <<<EOT
+# Addons installed by composer
+#
+# This file is generated automatically by composer from information in extra.nette-addon or extra.nette
+# (actually it is not at the moment, but should be in the future)
+EOT;
 
 
 
@@ -40,24 +46,24 @@ class NetteAddonInstaller extends LibraryInstaller
 		}
 	}
 
+
+
 	public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
 	{
-		// Base install command
 		parent::install($repo, $package);
 
-		// Save extras section into addons.neon
-		if ($extra = $this->getExtra($package)) {
-			$appDir = isset($extra['app-dir']) ? $extra['app-dir'] : ($this->composer->getConfig()->get('home') . '/app/');
-			echo "AppDir: $appDir\n";
+		$this->saveAddonInfo($package);
+		$this->copyAssets($package);
+	}
 
-			$path = "$appDir/addons.neon";
-			$addons = file_exists($path) ? Neon::decode(file_get_contents($path)) : array();
-			$addons['addons'][$package->getPrettyName()] = $extra;
-			file_put_contents($path, Neon::encode($addons, Neon::BLOCK));
-			echo "Saved\n";
-		}
 
-		// TODO: move resources to appropriate dirs
+
+	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
+	{
+		parent::update($repo, $initial, $target);
+
+		$this->saveAddonInfo($target);
+		$this->copyAssets($target);
 	}
 
 
@@ -69,6 +75,37 @@ class NetteAddonInstaller extends LibraryInstaller
 	{
 		$extra = $package->getExtra();
 		$ret = @$extra['nette-addon'] ?: @$extra['nette']; // @ - just to make it simple
-		return $ret && $section !== NULL ? @$ret[$section] : NULL;
+		return $section === NULL ? $ret : @$ret[$section];
+	}
+
+
+
+	/*****************  custom workers  *****************j*d*/
+
+
+	/**
+	 * Save extras section into addons.neon
+	 */
+	private function saveAddonInfo(PackageInterface $package)
+	{
+		if($extra = $this->getExtra($package)) {
+//			print_r($this->composer->getConfig());
+			$appDir = isset($extra['app-dir']) ? $extra['app-dir'] : 'app/';
+
+			$path = "$appDir/config/addons.neon";
+			$addons  = file_exists($path) ? Neon::decode(file_get_contents($path)) : array();
+			$addons['addons'][$package->getPrettyName()] = $extra;
+			file_put_contents($path, self::HEADER . "\n\n" . Neon::encode($addons, Neon::BLOCK));
+		}
+	}
+
+
+
+	/**
+	 * Copy assets to designated directories
+	 */
+	private function copyAssets(PackageInterface $package)
+	{
+		// TODO
 	}
 }
