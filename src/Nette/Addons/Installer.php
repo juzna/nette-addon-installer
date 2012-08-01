@@ -56,6 +56,29 @@ EOT;
 
 		$this->saveAddonInfo($package);
 		$this->copyAssets($package);
+
+
+
+		// Run custom installers (registered in extra.nette-addon.addon-section)
+		$customInstallers = array();
+		foreach ($repo->getPackages() as /** @var PackageInterface $pkg */ $pkg) {
+			if ($x = $this->getExtra($pkg, 'addon-section')) {
+				$customInstallers += $x;
+			}
+		}
+		echo "Registered nette custom installers:"; var_dump($customInstallers);
+
+		$extra = $this->getExtra($package);
+		foreach ($customInstallers as $section => $className) {
+			if ( ! isset($extra[$section])) continue; // no section for this installer
+
+			echo "Running custom installer for section '$section' with config"; var_dump($extra[$section]);
+
+			/** @var \Nette\Addons\CustomInstallers\IInstaller $installer */
+			$installer = new $className;
+			$installer->install($repo, $package, $extra[$section]);
+		}
+
 	}
 
 
