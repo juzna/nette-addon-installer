@@ -19,6 +19,20 @@ class Installer extends LibraryInstaller
 		'nette-assets',
 	);
 
+	/** @var InstalledRepositoryInterface */
+	private $repo;
+
+	/** @var PackageInterface package being used; cached in all public methods */
+	private $package;
+
+	/** @var array cache: extra config section */
+	private $extra;
+
+	/** @var array config from addons.neon */
+	private $addonConfig;
+
+
+
 	const HEADER = <<<EOT
 # Addons installed by composer
 #
@@ -55,39 +69,18 @@ EOT;
 	{
 		parent::install($repo, $package);
 
-		$this->saveAddonInfo($package);
-		$this->copyAssets($package);
+		// store to local fields, load existing config, do work, save patched config
 
+		$this->repo = $repo;
+		$this->usePackage($package);
 
+		$this->loadAddonsNeon();
 
-		// Run custom installers (registered in extra.nette-addon.addon-section)
-		$customInstallers = array();
-		$autoloads = array();
-		foreach ($repo->getPackages() as /** @var PackageInterface $pkg */ $pkg) {
-			if ($x = $this->getExtra($pkg, 'addon-section')) {
-				$customInstallers += $x;
-				$autoloads[] = array($pkg, parent::getInstallPath($pkg)); // FIXME: ugly!
-			}
-		}
-		// echo "Registered nette custom installers:"; var_dump($customInstallers);
+		$this->saveAddonInfo();
+		$this->copyAssets();
+		$this->runCustomInstallers();
 
-		// Class loader for custom installers
-		$generator = new AutoloadGenerator;
-		$map = $generator->parseAutoloads($autoloads);
-		$classLoader = $generator->createLoader($map);
-		$classLoader->register();
-
-		$extra = $this->getExtra($package);
-		foreach ($customInstallers as $section => $className) {
-			if ( ! isset($extra[$section])) continue; // no section for this installer
-
-			echo "\tNette Addon: Running custom installer for section '$section'\n"; // with config: "; var_dump($extra[$section]);
-
-			/** @var \Nette\Addons\CustomInstallers\IInstaller $installer */
-			$installer = new $className;
-			$installer->install($repo, $package, $extra[$section]);
-		}
-
+		$this->saveAddonsNeon();
 	}
 
 
@@ -96,8 +89,32 @@ EOT;
 	{
 		parent::update($repo, $initial, $target);
 
-		$this->saveAddonInfo($target);
-		$this->copyAssets($target);
+		// store to local fields, load existing config, do work, save patched config
+
+		$this->repo = $repo;
+		$this->usePackage($target);
+
+		$this->loadAddonsNeon();
+
+		$this->saveAddonInfo();
+		$this->copyAssets();
+		$this->runCustomInstallers();
+
+		$this->saveAddonsNeon();
+	}
+
+
+
+	/*****************  utils  *****************j*d*/
+
+	/**
+	 * Sets this class to work with a given package from now on; then all method calls are easier
+	 */
+	private function usePackage(PackageInterface $package)
+	{
+		$this->package = $package;
+		$this->extra = NULL;
+		$this->addonConfig = NULL;
 	}
 
 
@@ -105,11 +122,44 @@ EOT;
 	/**
 	 * @return array|null
 	 */
-	private function getExtra(PackageInterface $package, $section = NULL)
+	private function getExtra($section = NULL)
 	{
-		$extra = $package->getExtra();
-		$ret = @$extra['nette-addon'] ?: @$extra['nette']; // @ - just to make it simple
-		return $section === NULL ? $ret : @$ret[$section];
+		// Find nette extra section for the first time
+		if ($this->extra === NULL) {
+			$extra = $this->package->getExtra();
+
+			if (isset($extra['nette-addon'])) $this->extra = $extra['nette-addon'];
+			elseif (isset($extra['nette'])) $this->extra = $extra['nette'];
+			else $this->extra = FALSE;
+		}
+
+		return $section === NULL ? $this->extra : @$this->extra[$section]; // @ - may not exist, we dont care
+	}
+
+
+
+	/**
+	 * Get path to addons.neon config file
+	 * @return string
+	 */
+	private function getAddonsNeonPath()
+	{
+		if ($x = $this->getExtra('addons-neon')) return $x; // explicit path given
+
+		$appDir = $this->getExtra('app-dir') ?: 'app/';
+		return "$appDir/config/addons.neon";
+	}
+
+	private function loadAddonsNeon()
+	{
+		$path = $this->getAddonsNeonPath();
+		$this->addonConfig = file_exists($path) ? Neon::decode(file_get_contents($path)) : array();
+	}
+
+	private function saveAddonsNeon()
+	{
+		$path = $this->getAddonsNeonPath();
+		file_put_contents($path, self::HEADER . "\n\n" . Neon::encode($this->addonConfig, Neon::BLOCK));
 	}
 
 
@@ -120,17 +170,9 @@ EOT;
 	/**
 	 * Save extras section into addons.neon
 	 */
-	private function saveAddonInfo(PackageInterface $package)
+	private function saveAddonInfo()
 	{
-		if($extra = $this->getExtra($package)) {
-//			print_r($this->composer->getConfig());
-			$appDir = isset($extra['app-dir']) ? $extra['app-dir'] : 'app/';
-
-			$path = "$appDir/config/addons.neon";
-			$addons  = file_exists($path) ? Neon::decode(file_get_contents($path)) : array();
-			$addons['addons'][$package->getPrettyName()] = $extra;
-			file_put_contents($path, self::HEADER . "\n\n" . Neon::encode($addons, Neon::BLOCK));
-		}
+		$this->addonConfig['addons'][$this->package->getPrettyName()] = $this->getExtra();
 	}
 
 
@@ -138,8 +180,44 @@ EOT;
 	/**
 	 * Copy assets to designated directories
 	 */
-	private function copyAssets(PackageInterface $package)
+	private function copyAssets()
 	{
 		// TODO
 	}
+
+
+
+	/**
+	 * Run custom installers (registered in extra.nette-addon.addon-section)
+	 */
+	private function runCustomInstallers()
+	{
+		$customInstallers = array();
+		$autoloads = array();
+		foreach ($this->repo->getPackages() as /** @var PackageInterface $pkg */ $pkg) {
+			if ($x = @$pkg->getExtra()['nette-addon']['addon-section']) {
+				$customInstallers += $x;
+				$autoloads[] = array($pkg, parent::getInstallPath($pkg)); // FIXME: ugly!
+			}
+		}
+		echo "Registered nette custom installers:"; var_dump($customInstallers);
+
+		// Class loader for custom installers
+		$generator = new AutoloadGenerator;
+		$map = $generator->parseAutoloads($autoloads);
+		$classLoader = $generator->createLoader($map);
+		$classLoader->register();
+
+		$extra = $this->getExtra();
+		foreach ($customInstallers as $section => $className) {
+			if ( ! isset($extra[$section])) continue; // no section for this installer
+
+			echo "\tNette Addon: Running custom installer for section '$section'\n"; // with config: "; var_dump($extra[$section]);
+
+			/** @var \Nette\Addons\CustomInstallers\IInstaller $installer */
+			$installer = new $className;
+			$installer->install($this->repo, $this->package, $extra[$section]); // FIXME: update/uninstall
+		}
+	}
+
 }
