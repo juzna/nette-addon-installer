@@ -33,12 +33,4 @@ and [Kdyby CURL](https://github.com/juzna/nette-visual-paginator/blob/master/com
 
 ## Options
 
-Get inspired in *examples* section. Here is a brief summary about possible options:
-
-- **assets** - CSS or JavaScript files required by addon; requires WebLoader addon to be installed
-- **assets-optional** - like above, but only optional. User should be prompted whether to install them or not.
-- **config-extensions** - extensions for Nette's Dependency Injection Container
-- **extension-methods** - add new methods to existing objects
-- **extras** - [custom installer](https://github.com/juzna/nette-extras) for common assets
-
-More options to come
+[Options](https://github.com/juzna/nette-addon-installer/blob/master/options.md)
