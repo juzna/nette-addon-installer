@@ -14,4 +14,5 @@ List of addons which are ready to be installed by `nette/addon-installer`.
 Addons waiting for maintainer's approval.
 
 - [watchdog-client](https://github.com/bazo/watchdog-client/pull/1) by Bazo
-- [multiple upload](https://github.com/echo511/Plupload/pull/1) by echo511
+- [plupload](https://github.com/echo511/Plupload/pull/1) by echo511
+- [neo4j](https://github.com/bazo/nette-neo4j-extension/pull/1) by Bazo
