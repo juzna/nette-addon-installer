@@ -39,3 +39,8 @@ and [Kdyby CURL](https://github.com/juzna/nette-visual-paginator/blob/master/com
 ## Addons
 
 Here is a list of experimental [addons](https://github.com/juzna/nette-addon-installer/blob/master/addons.md) which are ready for this installer.
+
+
+## Changelog
+This projects is in early development phase, many changes and compatibility breaks will occur.
+Please see [change log](https://github.com/juzna/nette-addon-installer/blob/master/changelog.md) for details.
