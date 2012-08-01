@@ -11,5 +11,6 @@ List of addons which are ready to be installed by `nette/addon-installer`.
 
 
 ## Coming soon
+
 - [watchdog-client](https://github.com/bazo/watchdog-client/pull/1) by Bazo
 -
