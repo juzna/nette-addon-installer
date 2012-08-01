@@ -19,8 +19,9 @@ interface IInstaller
 	 *
 	 * @param InstalledRepositoryInterface $repo    repository in which to check
 	 * @param PackageInterface             $package package instance
+	 * @param mixed                        $section configuration for registered section
 	 */
-	function install(InstalledRepositoryInterface $repo, PackageInterface $package);
+	function install(InstalledRepositoryInterface $repo, PackageInterface $package, $section);
 
 	/**
 	 * Updates specific package.
@@ -28,15 +29,17 @@ interface IInstaller
 	 * @param InstalledRepositoryInterface $repo    repository in which to check
 	 * @param PackageInterface             $initial already installed package version
 	 * @param PackageInterface             $target  updated version
+	 * @param mixed                        $section configuration for registered section
 	 */
-	function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target);
+	function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target, $section);
 
 	/**
 	 * Uninstalls specific package.
 	 *
 	 * @param InstalledRepositoryInterface $repo    repository in which to check
 	 * @param PackageInterface             $package package instance
+	 * @param mixed                        $section configuration for registered section
 	 */
-	function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package);
+	function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package, $section);
 
 }
