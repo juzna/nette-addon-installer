@@ -7,7 +7,7 @@ Nette Addon related options are in `composer.json` in *extra.nette-addon* sectio
 	"type": "nette-addon",
 	...
 	"extra": {
-		"nette": {
+		"nette-addon": {
 			"config-extensions": {
 				"webLoader": "WebLoader\\Nette\\Config\\WebLoaderExtension"
 			}
@@ -63,7 +63,7 @@ CSS, JavaScript files (or images, flags or anything) required by addon. They're 
 
 **Example**:
 ```js
-extra: {
+"nette-addon": {
 	"assets": [ "example.css" ]
 }
 ```
@@ -82,11 +82,10 @@ Extensions for Nette's [Dependency Injection Container](http://doc.nette.org/en/
 
 **Example**:
 ```js
-"extra": {
-	"nette": {
-		"config-extensions": {
-			"webLoader": "WebLoader\\Nette\\Config\\WebLoaderExtension"
-		}
+"nette-addon": {
+	"config-extensions": {
+		"webLoader": "WebLoader\\Nette\\Config\\WebLoaderExtension"
+	}
 }
 ```
 
@@ -98,7 +97,7 @@ Add new methods to existing classes, e.g. `addDatePicker` to a form container. I
 
 **Example**:
 ```js
-"extra": {
+"nette-addon": {
 	"extension-methods": [
 		{
 			"class": "Nette\\Forms\\Container",
@@ -114,6 +113,22 @@ Add new methods to existing classes, e.g. `addDatePicker` to a form container. I
 **Experimental!**
 
 A [custom installer](https://github.com/juzna/nette-extras) for common assets
+
+
+
+### initializer
+Call a static method on every request (while bootstrapping the application). This allows addons with very specific needs
+ to register whatever they want.
+
+ Either a static method name (string) or list of those.
+
+**Example**:
+```js
+"nette-addon": {
+	"initializer": "Bazo\\Watchdog\\NetteLogger::register"
+}
+```
+
 
 
 ### web-loader
