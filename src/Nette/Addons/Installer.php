@@ -200,7 +200,7 @@ EOT;
 				$autoloads[] = array($pkg, parent::getInstallPath($pkg)); // FIXME: ugly!
 			}
 		}
-		echo "Registered nette custom installers:"; var_dump($customInstallers);
+		// echo "Registered nette custom installers:"; var_dump($customInstallers);
 
 		// Class loader for custom installers
 		$generator = new AutoloadGenerator;
