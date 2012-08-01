@@ -10,7 +10,11 @@
  * @package Nette
  */
 
+namespace Nette\Addons;
 
+/**
+ * FIXME: remove this and require it as a dependancy
+ */
 
 /**
  * Simple parser & generator for Nette Object Notation.
@@ -61,7 +65,7 @@ class Neon
 	 */
 	public static function encode($var, $options = NULL)
 	{
-		if ($var instanceof DateTime) {
+		if ($var instanceof \DateTime) {
 			return $var->format('Y-m-d H:i:s O');
 
 		} elseif ($var instanceof NeonEntity) {
@@ -123,7 +127,7 @@ class Neon
 	public static function decode($input)
 	{
 		if (!is_string($input)) {
-			throw new InvalidArgumentException("Argument must be a string, " . gettype($input) . " given.");
+			throw new \InvalidArgumentException("Argument must be a string, " . gettype($input) . " given.");
 		}
 		if (!self::$re) {
 			self::$re = '~(' . implode(')|(', self::$patterns) . ')~Ami';
@@ -298,7 +302,7 @@ class Neon
 				} elseif (is_numeric($t)) {
 					$value = $t * 1;
 				} elseif (preg_match('#\d\d\d\d-\d\d?-\d\d?(?:(?:[Tt]| +)\d\d?:\d\d:\d\d(?:\.\d*)? *(?:Z|[-+]\d\d?(?::\d\d)?)?)?$#A', $t)) {
-					$value = new DateTime($t);
+					$value = new \DateTime($t);
 				} else { // literal
 					$value = $t;
 				}
@@ -376,7 +380,7 @@ class Neon
 /**
  * The exception that indicates error of NEON decoding.
  */
-class NeonEntity extends stdClass
+class NeonEntity extends \stdClass
 {
 	public $value;
 	public $attributes;
@@ -387,6 +391,6 @@ class NeonEntity extends stdClass
 /**
  * The exception that indicates error of NEON decoding.
  */
-class NeonException extends Exception
+class NeonException extends \Exception
 {
 }

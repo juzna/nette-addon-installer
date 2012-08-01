@@ -1,5 +1,7 @@
 <?php
 
+namespace Nette\Addons;
+
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
@@ -9,7 +11,7 @@ use Composer\Installer\LibraryInstaller;
  *
  * @author Jan Dolecek <juzna.cz@gmail.com>
  */
-class NetteAddonInstaller extends LibraryInstaller
+class Installer extends LibraryInstaller
 {
 	private static $supportedTypes = array(
 		'nette-addon',
@@ -36,13 +38,13 @@ EOT;
 	{
 		switch($package->getType()) {
 			case 'nette-assets':
-				throw new Exception("Not implemented yet");
+				throw new \Exception("Not implemented yet");
 
 			case 'nette-addon':
 				return parent::getInstallPath($package);
 
 			default:
-				throw new Exception("Not recognized package type '{$package->getType()}'");
+				throw new \Exception("Not recognized package type '{$package->getType()}'");
 		}
 	}
 

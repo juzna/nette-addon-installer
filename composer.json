@@ -20,10 +20,10 @@
 		"nette/nette": "2.0.*"
 	},
 	"autoload": {
-		"psr-0": { "": "./" }
+		"psr-0": { "Nette\\Addons": "src/" }
 	},
 	"extra": {
-		"class": "NetteAddonInstaller"
+		"class": "Nette\\Addons\\Installer"
 	},
 	"require-dev": {
 		"composer/composer": "1.0.*"
