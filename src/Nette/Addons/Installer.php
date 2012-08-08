@@ -195,7 +195,8 @@ EOT;
 		$customInstallers = array();
 		$autoloads = array();
 		foreach ($this->repo->getPackages() as /** @var PackageInterface $pkg */ $pkg) {
-			if ($x = @$pkg->getExtra()['nette-addon']['addon-section']) {
+			$extra = $pkg->getExtra();
+			if ($x = @$extra['nette-addon']['addon-section']) {
 				$customInstallers += $x;
 				$autoloads[] = array($pkg, parent::getInstallPath($pkg)); // FIXME: ugly!
 			}
