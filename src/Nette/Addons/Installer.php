@@ -205,7 +205,7 @@ EOT;
 
 		// Class loader for custom installers
 		$generator = new AutoloadGenerator;
-		$map = $generator->parseAutoloads($autoloads);
+		$map = $generator->parseAutoloads($autoloads, $this->package);
 		$classLoader = $generator->createLoader($map);
 		$classLoader->register();
 
