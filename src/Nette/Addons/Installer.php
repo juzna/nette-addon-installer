@@ -204,7 +204,7 @@ EOT;
 		// echo "Registered nette custom installers:"; var_dump($customInstallers);
 
 		// Class loader for custom installers
-		$generator = new AutoloadGenerator;
+		$generator = new AutoloadGenerator($this->composer->getEventDispatcher());
 		$map = $generator->parseAutoloads($autoloads, $this->package);
 		$classLoader = $generator->createLoader($map);
 		$classLoader->register();
