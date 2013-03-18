@@ -203,11 +203,13 @@ EOT;
 		}
 		// echo "Registered nette custom installers:"; var_dump($customInstallers);
 
-		// Class loader for custom installers
-		$generator = new AutoloadGenerator($this->composer->getEventDispatcher());
-		$map = $generator->parseAutoloads($autoloads, $this->package);
-		$classLoader = $generator->createLoader($map);
-		$classLoader->register();
+		if ($autoloads) {
+			// Class loader for custom installers
+			$generator = new AutoloadGenerator($this->composer->getEventDispatcher());
+			$map = $generator->parseAutoloads($autoloads, $this->package);
+			$classLoader = $generator->createLoader($map);
+			$classLoader->register();
+		}
 
 		$extra = $this->getExtra();
 		foreach ($customInstallers as $section => $className) {
